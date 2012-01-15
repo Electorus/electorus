@@ -1,4 +1,5 @@
 Electorus.mwb - MySql WorkBench model file
+Electorus-db.sql - Exported from Electorus.mwb. Database schema.
 
 FillDbElect2011.pl - produces SQL script to populate the database with Russian Parliament's elections of year 2011.
 
