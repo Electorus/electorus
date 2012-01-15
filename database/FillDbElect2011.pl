@@ -17,6 +17,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with Electorus.  If not, see <http://www.gnu.org/licenses/>.
 
+# Produces SQL script to populate the database with Russian Parliament's elections of year 2011.
+
 use strict;
 use Text::CSV::Encoded;
 use utf8;
@@ -30,16 +32,18 @@ my %candidates = ("Справедливая Россия" => 1, "ЛДПР" => 2,
 # Initialization of the Elections and Candidates tables. The database is supposed to be empty!
 sub print_init()
 {
+  print "SET autocommit=0;\n";
   print "USE Electorus;\n";
-  print "DELETE FROM Elections WHERE Id=1;\n";
+
+  print "DELETE FROM Votes WHERE (Candidates_id <8) AND (Candidates_id > 0);\n";
   print "DELETE FROM Candidates WHERE Elections_id = 1;\n";
+  print "DELETE FROM Elections WHERE Id=1;\n";
   print "INSERT INTO Elections (Id, Name, Date) VALUES (1, \"Выборы в Гос. Думу 2011\", \"04122011\");\n";
 
   foreach (keys %candidates) {
     print "INSERT INTO Candidates (Id, Name, Elections_id) VALUES (" .  $candidates{$_} . ", \"" . $_ . "\", 1);\n";
   };
 
-  print "DELETE FROM Votes WHERE (Candidates_id <8) AND (Candidates_id > 0);\n";
   print "DELETE FROM Protocols;\n";
   print "DELETE FROM Regions;\n";
   print "DELETE FROM Committees;\n";
@@ -76,6 +80,8 @@ my $comm_id = 1;
 # Used only in initial database population script!
 my %comms_lo;
 my %comms_hi;
+# Line counter. To make periodic commits
+my $line_qty = 0;
 
 while (<RES>) {
    if ($csv->parse($_)) {
@@ -141,6 +147,11 @@ while (<RES>) {
             print $vote_id++ . ", " . $columns[$cand_id] . ", " . ($cand_id - 22) . ", $prot_id);\n";
         };
         $prot_id++;
+        $line_qty++;
+        if($line_qty > 400) {
+            print "COMMIT;\n";
+            $line_qty = 0;
+        };
    } else {
         my $err = $csv->error_input;
         print "Failed to parse line: $err";
@@ -148,3 +159,5 @@ while (<RES>) {
 };
 
 close RES;
+
+print "COMMIT;\n";
