@@ -1,0 +1,6 @@
+Electorus.mwb - MySql WorkBench model file
+
+FillDbElect2011.pl - produces SQL script to populate the database with Russian Parliament's elections of year 2011.
+
+p2011.csv - Russian Parliament's elections results in CSV format (official version, transformed to CSV
+by Golos association. Taken from: http://www.kartaitogov.ru/
